@@ -3,6 +3,7 @@
  */
 package com.bitcamp.board;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
 
@@ -16,13 +17,19 @@ public class App {
 
     Scanner keyboardInput = new Scanner(System.in);
 
-    int no = 0;
-    String title = "";
-    String content = "";
-    String writer = "";
-    String password = "";
-    int viewCount = 0;
-    long createdDate = 0;
+    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+
+    final int SIZE = 3;
+
+    int[] no = new int[SIZE];
+    String[] title = new String[SIZE];
+    String[] content = new String[SIZE];
+    String[] writer = new String[SIZE];
+    String[] password = new String[SIZE];
+    int[] viewCount = new int[SIZE];
+    long[] createdDate = new long[SIZE];
+
+    int boardCount = 0;
 
     while (true) {
       System.out.println("----------------------------------------------------");
@@ -39,6 +46,7 @@ public class App {
 
       if (menuNo == 0) {
         break;
+
       } else if (menuNo == 1) {
         System.out.println("---------------------------------------------------");
         System.out.println("[게시글 목록]");
@@ -46,60 +54,79 @@ public class App {
         System.out.println("번호       제목       조회수    작성자    등록일");
         System.out.println();
 
-        System.out.print(1);
-        System.out.print("\t");
-        System.out.print("제목입니다1");
-        System.out.print("\t");
-        System.out.print(20 + "\t");
-        System.out.print("홍길동\t");
-        System.out.print("2022-07-17\r\n");
+        for (int i = 0; i < boardCount; i++) {
+          Date date = new Date(createdDate[i]);
 
-        System.out.print(2 + "\t" + "제목입니다2\t" +
-            11 + "\t" + "홍길동\t" + "2022-07-17\n");
+          String dateStr = formatter.format(date);
 
-        System.out.println(3 + "\t제목입니다3\t" +
-            31 + "\t" + "임꺽정\t2022-07-17");
-
-        System.out.printf("%d\t%s\t%d\t%s\t%s\n",
-            4, "제목입니다4", 45, "유관순", "2022-07-17");
+          System.out.printf("%d\t%s\t%d\t%s\t%s\n", 
+              no[i], title[i], viewCount[i], writer[i], dateStr);
+        }
 
       } else if (menuNo == 2) {
         System.out.println("---------------------------------------------------");
         System.out.println("[게시판 상세보기]");
 
-        System.out.printf("번호: %d\n", no);
-        System.out.printf("제목: %s\n", title);
-        System.out.printf("내용: %s\n", content);
-        System.out.printf("조회수: %d\n", viewCount);
-        System.out.printf("작성자: %s\n", writer);
+        System.out.print("조회할 게시물 번호? ");
+        String input =keyboardInput.nextLine();
+        int boardNo = Integer.parseInt(input);
 
-        Date date = new Date(createdDate);
-        System.out.printf("등록일: %tY-%1$tm-%1$tm-%1$td %1$tH:%1$tM\n", date);
+        int boardIndex = -1;
+        for (int i = 0; i < boardCount; i++) {
+          if (no[i] == boardNo) {
+            boardIndex = i;
+            break;
+          }
+        }
+
+        if (boardIndex == -1) {
+          System.out.println("해당 번호의 게시글이 없습니다!");
+          continue;
+        }
+        System.out.printf("번호: %d\n", no[boardIndex]);
+        System.out.printf("제목: %s\n", title[boardIndex]);
+        System.out.printf("내용: %s\n", content[boardIndex]);
+        System.out.printf("조회수: %d\n", viewCount[boardIndex]);
+        System.out.printf("작성자: %s\n", writer[boardIndex]);
+        Date date = new Date(createdDate[boardIndex]);
+        System.out.printf("등록일: %tT%1$tm-%1td %1$tH:%1tM\n", date);
+
 
       } else if (menuNo == 3) {
         System.out.println("---------------------------------------------------");
         System.out.println("[게시글 등록]");
 
+        if (boardCount == SIZE) {
+          System.out.println("게시글을 더 이상 저장할 수 없습니다.");
+          continue;
+        }
+
         System.out.print("제목 => ");
-        title = keyboardInput.nextLine();
+        title[boardCount] = keyboardInput.nextLine();
 
         System.out.print("내용 => ");
-        content = keyboardInput.nextLine();
+        content[boardCount] = keyboardInput.nextLine();
 
         System.out.print("작성자 => ");
-        writer = keyboardInput.nextLine();
+        writer[boardCount] = keyboardInput.nextLine();
 
         System.out.print("암호 => ");
-        password = keyboardInput.nextLine();
+        password[boardCount] = keyboardInput.nextLine();
 
-        no = 1;
-        viewCount = 0;
-        createdDate = System.currentTimeMillis();
+        no[boardCount] = boardCount == 0 ? 1 : no[boardCount - 1] + 1;
+
+        viewCount[boardCount] = 0;
+        createdDate[boardCount] = System.currentTimeMillis();
+
+        boardCount++;
 
       } else {
         System.out.println("메뉴 번호가 옳지 않습니다!");
       }
+
+      System.out.println();
     } // while end
+
     System.out.println("---------------------------------------------------");
     System.out.println("안녕히 가세요!");
     keyboardInput.close();
